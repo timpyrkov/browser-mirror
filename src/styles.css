@@ -1,0 +1,263 @@
+/* styles.css */
+/* Shared theme variables, buttons, and sidebar layout for Browser Mirror. */
+
+:root {
+  --neutral-1: #0d0d0d;
+  --neutral-2: #101010;
+  --neutral-3: #212121;
+  --neutral-4: #343434;
+  --neutral-5: #4e4e4e;
+  --neutral-6: #6e6e6e;
+  --neutral-7: #919191;
+  --neutral-8: #b1b1b1;
+  --neutral-9: #cbcbcb;
+  --neutral-10: #dedede;
+  --neutral-11: #eaeaea;
+  --neutral-12: #f2f2f2;
+  --primary-1: #d9a62e;
+  --primary-2: #d0962f;
+  --primary-3: #d48822;
+  --primary-4: #d0791e;
+  --primary-5: #cb6a1b;
+  --secondary-1: #babd2d;
+  --secondary-2: #9db341;
+  --secondary-3: #88ae48;
+  --secondary-4: #76a055;
+  --secondary-5: #6b905d;
+  --color-error: #fb5e4b;
+  --color-success: #82b072;
+  --primary-light: #e3be67;
+  --primary-dark: #944d14;
+  --secondary-light: #cccf65;
+  --secondary-dark: #4e6a44;
+
+  --background: var(--neutral-1);
+  --surface: var(--neutral-2);
+  --surface-top: var(--neutral-2);
+  --surface-bottom: var(--neutral-4);
+  --border: var(--neutral-4);
+  --shadow: 0 2px 8px rgba(0,0,0,0.25);
+  --foreground: var(--neutral-11);
+  --text-secondary: var(--neutral-8);
+  --input-bg: var(--neutral-2);
+  --input-border: var(--neutral-5);
+  --input-focus: var(--primary-1);
+  --success: var(--color-success);
+  --error: var(--color-error);
+}
+
+:root[data-theme="light"] {
+  --neutral-1: #f2f2f2;
+  --neutral-2: #eaeaea;
+  --neutral-3: #dedede;
+  --neutral-4: #cbcbcb;
+  --neutral-5: #b1b1b1;
+  --neutral-6: #919191;
+  --neutral-7: #6e6e6e;
+  --neutral-8: #4e4e4e;
+  --neutral-9: #343434;
+  --neutral-10: #212121;
+  --neutral-11: #101010;
+  --neutral-12: #0d0d0d;
+
+  --background: var(--neutral-1);
+  --surface: var(--neutral-2);
+  --surface-top: var(--neutral-2);
+  --surface-bottom: var(--neutral-1);
+  --border: var(--neutral-4);
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --foreground: var(--neutral-11);
+  --text-secondary: var(--neutral-8);
+  --input-bg: var(--neutral-2);
+  --input-border: var(--neutral-5);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  display: block;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(180deg, var(--surface-top), var(--surface-bottom));
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  min-width: 240px;
+}
+
+.sidebar-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding-bottom: 0.75em;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.toolbar-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+
+.toolbar select {
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--foreground);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.toolbar select:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-focus) 20%, transparent);
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.theme-toggle:hover, .theme-toggle:focus-visible {
+  border-color: var(--primary-1);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--primary-1) 40%, transparent);
+  outline: none;
+}
+.theme-toggle:active {
+  transform: scale(0.92);
+}
+:root[data-theme="light"] .theme-toggle {
+  background: #101010;
+  border-color: #343434;
+  color: #f2f2f1;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  margin-top: 1em;
+  flex-shrink: 0;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+  box-shadow: none;
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn-green {
+  background: linear-gradient(180deg, var(--primary-light), var(--primary-2) 55%, var(--primary-4));
+  border-color: var(--primary-4);
+  color: #241a03;
+}
+.btn-green:hover:not(:disabled), .btn-green:focus-visible {
+  filter: brightness(1.08);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--primary-1) 55%, transparent);
+  outline: none;
+}
+
+.btn-yellow {
+  background: linear-gradient(135deg, var(--secondary-light), var(--secondary-2) 55%, var(--secondary-5));
+  border-color: var(--secondary-5);
+  color: #101a05;
+}
+.btn-yellow:hover:not(:disabled), .btn-yellow:focus-visible {
+  filter: brightness(1.08);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-2) 55%, transparent);
+  outline: none;
+}
+
+.status-area {
+  flex: 1;
+  min-height: 0;
+  margin-top: 1em;
+  padding: 1em;
+  background: linear-gradient(180deg, var(--surface-top), var(--surface-bottom));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  overflow-y: auto;
+}
+
+.status-text {
+  margin: 0 0 0.5em 0;
+  color: var(--text-secondary);
+}
+
+.status-active {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.status-inactive {
+  color: var(--text-secondary);
+}
+
+.welcome-text,
+.loading-text {
+  color: var(--text-secondary);
+  font-style: italic;
+  text-align: center;
+  margin-top: 2em;
+}
+
+.error-text {
+  color: var(--error);
+  font-style: italic;
+  text-align: center;
+  margin-top: 2em;
+}

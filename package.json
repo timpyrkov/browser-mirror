@@ -1,0 +1,14 @@
+{
+  "name": "browser-mirror",
+  "version": "1.0.0",
+  "description": "Horizontally mirror the current tab or its main video area in Firefox and Chrome.",
+  "private": true,
+  "scripts": {
+    "build:firefox": "node build.js firefox",
+    "build:chrome": "node build.js chrome",
+    "build": "npm run build:firefox && npm run build:chrome",
+    "clean": "rm -rf dist"
+  },
+  "author": "Tim Pyrkov",
+  "license": "MIT"
+}

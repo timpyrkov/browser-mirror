@@ -1,0 +1,260 @@
+// API compatibility
+const brw = typeof browser !== "undefined" ? browser : chrome;
+
+import { t, UI_STRINGS, UI_FLAGS, detectBrowserLanguage } from "./i18n.js";
+
+const pageBtn = document.getElementById("pageBtn");
+const videoBtn = document.getElementById("videoBtn");
+const statusArea = document.getElementById("statusArea");
+const welcomeText = document.getElementById("welcomeText");
+const appTitle = document.getElementById("appTitle");
+const uiLangSelect = document.getElementById("uiLangSelect");
+
+let currentState = { page: false, video: false, videoFound: false };
+let currentLang = "en";
+
+const LANGUAGES = [
+  { code: "en", name: "English" },
+  { code: "es", name: "Spanish" },
+  { code: "it", name: "Italian" },
+  { code: "fr", name: "French" },
+  { code: "de", name: "German" },
+  { code: "ru", name: "Russian" },
+  { code: "ko", name: "Korean" },
+  { code: "ja", name: "Japanese" },
+  { code: "zh", name: "Chinese" },
+];
+
+function populateUiLangSelect() {
+  uiLangSelect.innerHTML = LANGUAGES
+    .map((l) => `<option value="${l.code}">${UI_FLAGS[l.code] || ""} ${l.code.toUpperCase()}</option>`)
+    .join("");
+}
+
+function showStatus(message) {
+  statusArea.innerHTML = `<p class="status-text">${message}</p>`;
+}
+
+function showError(message) {
+  statusArea.innerHTML = `<p class="error-text">${message}</p>`;
+}
+
+function renderWelcome() {
+  if (welcomeText) {
+    welcomeText.textContent = t(currentLang, "welcomeText");
+    statusArea.innerHTML = "";
+    statusArea.appendChild(welcomeText);
+  }
+}
+
+function renderButtons() {
+  const pageLabel = currentState.page ? t(currentLang, "pageMirrorOn") : t(currentLang, "pageMirrorOff");
+  const videoLabel = currentState.video ? t(currentLang, "videoMirrorOn") : t(currentLang, "videoMirrorOff");
+
+  pageBtn.textContent = pageLabel;
+  pageBtn.title = pageLabel;
+  videoBtn.textContent = videoLabel;
+  videoBtn.title = videoLabel;
+
+  pageBtn.classList.toggle("btn-green", !currentState.page);
+  pageBtn.classList.toggle("btn-yellow", currentState.page);
+  videoBtn.classList.toggle("btn-yellow", !currentState.video);
+  videoBtn.classList.toggle("btn-green", currentState.video);
+}
+
+function renderState() {
+  renderButtons();
+
+  const pageStatus = currentState.page ? t(currentLang, "statusMirrored") : t(currentLang, "statusNormal");
+  const videoStatus = currentState.videoFound
+    ? currentState.video ? t(currentLang, "statusMirrored") : t(currentLang, "statusNormal")
+    : t(currentLang, "videoNotFound");
+
+  statusArea.innerHTML = `
+    <p class="status-text">${t(currentLang, "pageStatus", pageStatus)}</p>
+    <p class="status-text">${t(currentLang, "videoStatus", videoStatus)}</p>
+  `;
+}
+
+async function getActiveTab() {
+  const [tab] = await brw.tabs.query({ active: true, currentWindow: true });
+  return tab;
+}
+
+async function ensureContentScript(tabId) {
+  await brw.scripting.executeScript({
+    target: { tabId },
+    files: ["content.js"],
+  });
+}
+
+function isSpecialPage(url) {
+  return !url || /^(about|chrome|edge|moz-extension|chrome-extension):/i.test(url);
+}
+
+async function sendCommand(tabId, command) {
+  return await brw.tabs.sendMessage(tabId, { command });
+}
+
+async function refreshState() {
+  try {
+    const tab = await getActiveTab();
+    if (!tab || !tab.id) {
+      showError(t(currentLang, "errNoActiveTab"));
+      return;
+    }
+    if (isSpecialPage(tab.url)) {
+      showError(t(currentLang, "errSpecialPage"));
+      return;
+    }
+
+    await ensureContentScript(tab.id);
+    const response = await sendCommand(tab.id, "get-state");
+    if (!response || response.status !== "success") {
+      showError(t(currentLang, "errGeneric", (response && response.message) || "unknown"));
+      return;
+    }
+
+    currentState = {
+      page: response.page,
+      video: response.video,
+      videoFound: response.videoFound,
+    };
+    renderState();
+  } catch (error) {
+    console.error("Failed to refresh state:", error);
+    showError(describeError(error));
+  }
+}
+
+async function togglePage() {
+  try {
+    const tab = await getActiveTab();
+    if (!tab || !tab.id) {
+      showError(t(currentLang, "errNoActiveTab"));
+      return;
+    }
+    if (isSpecialPage(tab.url)) {
+      showError(t(currentLang, "errSpecialPage"));
+      return;
+    }
+
+    await ensureContentScript(tab.id);
+    const response = await sendCommand(tab.id, "toggle-page");
+    if (!response || response.status !== "success") {
+      showError(t(currentLang, "errGeneric", (response && response.message) || "unknown"));
+      return;
+    }
+
+    currentState = {
+      page: response.page,
+      video: response.video,
+      videoFound: currentState.videoFound,
+    };
+    renderState();
+  } catch (error) {
+    console.error("Failed to toggle page mirror:", error);
+    showError(describeError(error));
+  }
+}
+
+async function toggleVideo() {
+  try {
+    const tab = await getActiveTab();
+    if (!tab || !tab.id) {
+      showError(t(currentLang, "errNoActiveTab"));
+      return;
+    }
+    if (isSpecialPage(tab.url)) {
+      showError(t(currentLang, "errSpecialPage"));
+      return;
+    }
+
+    await ensureContentScript(tab.id);
+    const response = await sendCommand(tab.id, "toggle-video");
+    if (!response || response.status !== "success") {
+      showError(t(currentLang, "errGeneric", (response && response.message) || "unknown"));
+      return;
+    }
+
+    currentState = {
+      page: response.page,
+      video: response.video,
+      videoFound: response.videoFound,
+    };
+    renderState();
+  } catch (error) {
+    console.error("Failed to toggle video mirror:", error);
+    showError(describeError(error));
+  }
+}
+
+function describeError(error) {
+  const msg = (error && error.message) || String(error);
+  if (/could not establish connection|receiving end does not exist/i.test(msg)) {
+    return t(currentLang, "errContentScript");
+  }
+  return t(currentLang, "errGeneric", msg);
+}
+
+function applyUiLanguage(lang) {
+  currentLang = UI_STRINGS[lang] ? lang : "en";
+  uiLangSelect.value = currentLang;
+
+  document.title = t(currentLang, "appTitle");
+  appTitle.textContent = t(currentLang, "appTitle");
+  if (brw.sidebarAction && brw.sidebarAction.setTitle) {
+    brw.sidebarAction.setTitle({ title: t(currentLang, "appTitle") });
+  }
+
+  uiLangSelect.title = t(currentLang, "uiLangLabel");
+
+  // Update button labels in the new language without changing the status area.
+  renderButtons();
+
+  if (welcomeText) {
+    welcomeText.textContent = t(currentLang, "welcomeText");
+  }
+}
+
+async function loadSettings() {
+  const settings = await brw.storage.local.get(["theme", "uiLanguage"]);
+  // theme.js already applies the stored theme; pick up the saved interface
+  // language, or fall back to the browser's own language, then English.
+  let lang = settings.uiLanguage;
+  if (!lang || !UI_STRINGS[lang]) {
+    const browserLang = detectBrowserLanguage();
+    lang = UI_STRINGS[browserLang] ? browserLang : "en";
+  }
+  applyUiLanguage(lang);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  populateUiLangSelect();
+  await loadSettings();
+  pageBtn.addEventListener("click", togglePage);
+  videoBtn.addEventListener("click", toggleVideo);
+
+  uiLangSelect.addEventListener("change", () => {
+    const lang = uiLangSelect.value;
+    brw.storage.local.set({ uiLanguage: lang });
+    applyUiLanguage(lang);
+  });
+
+  await refreshState();
+
+  // Refresh whenever the active tab changes so the sidebar always reflects
+  // the mirror state of the tab currently in focus.
+  if (brw.tabs && brw.tabs.onActivated) {
+    brw.tabs.onActivated.addListener(() => {
+      refreshState().catch((err) => console.error("Tab-activated refresh failed:", err));
+    });
+  }
+
+  // Also refresh when the sidebar becomes visible after being hidden.
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      refreshState().catch((err) => console.error("Visibility refresh failed:", err));
+    }
+  });
+});
