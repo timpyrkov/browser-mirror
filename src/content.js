@@ -36,7 +36,12 @@ function ensurePageStyleInjected() {
  * that contains the target element, so the class rule actually applies.
  */
 function ensureVideoStyleInRoot(el) {
-  const root = el.getRootNode();
+  let root = el.getRootNode();
+  // A Document can only contain one element child (<html>), so append styles
+  // to <head> instead. ShadowRoots can accept the style directly.
+  if (root === document) {
+    root = document.head;
+  }
   if (root.getElementById && root.getElementById(STYLE_ID)) return;
   const style = document.createElement("style");
   style.id = STYLE_ID;

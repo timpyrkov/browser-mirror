@@ -64,10 +64,9 @@ function renderButtons() {
   videoBtn.textContent = videoLabel;
   videoBtn.title = videoLabel;
 
-  pageBtn.classList.toggle("btn-green", !currentState.page);
-  pageBtn.classList.toggle("btn-yellow", currentState.page);
-  videoBtn.classList.toggle("btn-yellow", !currentState.video);
-  videoBtn.classList.toggle("btn-green", currentState.video);
+  // Keep both buttons gold/orange regardless of mirror state.
+  pageBtn.className = "btn btn-green";
+  videoBtn.className = "btn btn-green";
 }
 
 function renderState() {
