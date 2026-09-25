@@ -209,8 +209,14 @@ function applyUiLanguage(lang) {
 
   uiLangSelect.title = t(currentLang, "uiLangLabel");
 
-  // Update button labels in the new language without changing the status area.
+  // Update button labels in the new language.
   renderButtons();
+
+  // If the status area already shows state text, re-render it in the new
+  // language so the whole UI stays consistent.
+  if (statusArea.querySelector(".status-text")) {
+    renderState();
+  }
 
   if (welcomeText) {
     welcomeText.textContent = t(currentLang, "welcomeText");
