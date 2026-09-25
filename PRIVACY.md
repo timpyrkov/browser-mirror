@@ -24,4 +24,5 @@ All transformations happen locally in the user's browser. No page content, URLs,
 
 ## Contact
 
-For questions about this privacy policy, please open an issue in the project repository.
+For questions about this privacy policy, please open an issue in the project repository:
+https://github.com/timpyrkov/browser-mirror
