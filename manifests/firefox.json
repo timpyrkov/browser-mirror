@@ -7,7 +7,10 @@
   "homepage_url": "https://github.com/timpyrkov/browser-mirror",
   "browser_specific_settings": {
     "gecko": {
-      "id": "browser-mirror@timpyrkov.com"
+      "id": "browser-mirror@timpyrkov.com",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   },
   "icons": {
