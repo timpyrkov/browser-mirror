@@ -22,6 +22,7 @@ export default {
   statusNormal: "normal",
   videoNotFound: "no se encontró vídeo",
   welcomeText: "Haz clic en un botón de arriba para espejar la pestaña actual o su área de vídeo principal.",
+  videoHint: "Comienza a reproducir el vídeo, luego espeja.",
   errNoActiveTab: "No se encontró ninguna pestaña activa.",
   errSpecialPage: "No se pueden espejar páginas especiales del navegador.",
   errContentScript: "No se pudo conectar con la página. Intenta recargarla.",

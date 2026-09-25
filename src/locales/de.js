@@ -22,6 +22,7 @@ export default {
   statusNormal: "normal",
   videoNotFound: "kein Video gefunden",
   welcomeText: "Klicke oben auf einen Button, um den aktuellen Tab oder seinen Hauptvideobereich zu spiegeln.",
+  videoHint: "Starte die Videowiedergabe, dann spiegeln.",
   errNoActiveTab: "Kein aktiver Tab gefunden.",
   errSpecialPage: "Spezielle Browserseiten können nicht gespiegelt werden.",
   errContentScript: "Die Seite konnte nicht erreicht werden. Versuche, sie neu zu laden.",

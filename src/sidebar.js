@@ -9,6 +9,7 @@ const statusArea = document.getElementById("statusArea");
 const welcomeText = document.getElementById("welcomeText");
 const appTitle = document.getElementById("appTitle");
 const uiLangSelect = document.getElementById("uiLangSelect");
+const videoHint = document.getElementById("videoHint");
 
 let currentState = { page: false, video: false, videoFound: false };
 let currentLang = "en";
@@ -233,6 +234,10 @@ function applyUiLanguage(lang) {
 
   if (welcomeText) {
     welcomeText.textContent = t(currentLang, "welcomeText");
+  }
+
+  if (videoHint) {
+    videoHint.textContent = t(currentLang, "videoHint");
   }
 }
 

@@ -22,6 +22,8 @@ export default {
   statusNormal: "正常",
   videoNotFound: "未找到视频",
   welcomeText: "点击上方按钮以镜像当前标签页或其主视频区域。",
+  videoHint: "开始播放视频，然后进行镜像。",
+
   errNoActiveTab: "未找到活动标签页。",
   errSpecialPage: "无法镜像浏览器特殊页面。",
   errContentScript: "无法访问该页面。请尝试刷新页面。",

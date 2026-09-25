@@ -22,6 +22,7 @@ export default {
   statusNormal: "normale",
   videoNotFound: "aucune vidéo trouvée",
   welcomeText: "Cliquez sur un bouton ci-dessus pour mettre en miroir l'onglet actuel ou sa zone vidéo principale.",
+  videoHint: "Lancez la lecture de la vidéo, puis mettez-la en miroir.",
   errNoActiveTab: "Aucun onglet actif trouvé.",
   errSpecialPage: "Impossible de mettre en miroir les pages spéciales du navigateur.",
   errContentScript: "Impossible d'atteindre la page. Essayez de la recharger.",

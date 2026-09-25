@@ -22,6 +22,8 @@ export default {
   statusNormal: "通常",
   videoNotFound: "動画が見つかりません",
   welcomeText: "上のボタンをクリックして、現在のタブまたはそのメイン動画エリアをミラーリングします。",
+  videoHint: "動画の再生を開始してからミラーリングしてください。",
+
   errNoActiveTab: "アクティブなタブが見つかりません。",
   errSpecialPage: "ブラウザーの特殊ページはミラーリングできません。",
   errContentScript: "ページに接続できませんでした。ページを再読み込みしてみてください。",

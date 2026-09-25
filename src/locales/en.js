@@ -22,6 +22,7 @@ export default {
   statusNormal: "normal",
   videoNotFound: "no video found",
   welcomeText: "Click a button above to mirror the current tab or its main video area.",
+  videoHint: "Start playing the video, then mirror.",
   errNoActiveTab: "No active tab found.",
   errSpecialPage: "Cannot mirror special browser pages.",
   errContentScript: "Could not reach the page. Try reloading it.",

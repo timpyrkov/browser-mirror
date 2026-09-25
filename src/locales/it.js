@@ -22,6 +22,7 @@ export default {
   statusNormal: "normale",
   videoNotFound: "nessun video trovato",
   welcomeText: "Clicca uno dei pulsanti sopra per specchiare la scheda corrente o l'area video principale.",
+  videoHint: "Avvia la riproduzione del video, poi specchia.",
   errNoActiveTab: "Nessuna scheda attiva trovata.",
   errSpecialPage: "Impossibile specchiare le pagine speciali del browser.",
   errContentScript: "Impossibile contattare la pagina. Prova a ricaricarla.",

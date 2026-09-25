@@ -22,6 +22,7 @@ export default {
   statusNormal: "일반",
   videoNotFound: "동영상 없음",
   welcomeText: "위의 버튼을 클릭하여 현재 탭이나 주요 동영상 영역을 미러링하세요.",
+  videoHint: "동영상 재생을 시작한 후 미러링하세요.",
   errNoActiveTab: "활성 탭을 찾을 수 없습니다.",
   errSpecialPage: "브라우저의 특수 페이지는 미러링할 수 없습니다.",
   errContentScript: "페이지에 연결할 수 없습니다. 페이지를 새로고침해 보세요.",
