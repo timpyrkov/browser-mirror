@@ -35,11 +35,19 @@ function showStatus(message) {
   statusArea.innerHTML = `<p class="status-text">${message}</p>`;
 }
 
-function showError(message) {
-  statusArea.innerHTML = `<p class="error-text">${message}</p>`;
+let lastError = null;
+
+function showError(key, ...args) {
+  lastError = { key, args };
+  statusArea.innerHTML = `<p class="error-text">${t(currentLang, key, ...args)}</p>`;
+}
+
+function clearError() {
+  lastError = null;
 }
 
 function renderWelcome() {
+  clearError();
   if (welcomeText) {
     welcomeText.textContent = t(currentLang, "welcomeText");
     statusArea.innerHTML = "";
@@ -63,6 +71,7 @@ function renderButtons() {
 }
 
 function renderState() {
+  clearError();
   renderButtons();
 
   const pageStatus = currentState.page ? t(currentLang, "statusMirrored") : t(currentLang, "statusNormal");
@@ -100,18 +109,18 @@ async function refreshState() {
   try {
     const tab = await getActiveTab();
     if (!tab || !tab.id) {
-      showError(t(currentLang, "errNoActiveTab"));
+      showError("errNoActiveTab");
       return;
     }
     if (isSpecialPage(tab.url)) {
-      showError(t(currentLang, "errSpecialPage"));
+      showError("errSpecialPage");
       return;
     }
 
     await ensureContentScript(tab.id);
     const response = await sendCommand(tab.id, "get-state");
     if (!response || response.status !== "success") {
-      showError(t(currentLang, "errGeneric", (response && response.message) || "unknown"));
+      showError("errGeneric", (response && response.message) || "unknown");
       return;
     }
 
@@ -123,7 +132,8 @@ async function refreshState() {
     renderState();
   } catch (error) {
     console.error("Failed to refresh state:", error);
-    showError(describeError(error));
+    const err = describeError(error);
+    showError(err.key, ...err.args);
   }
 }
 
@@ -131,18 +141,18 @@ async function togglePage() {
   try {
     const tab = await getActiveTab();
     if (!tab || !tab.id) {
-      showError(t(currentLang, "errNoActiveTab"));
+      showError("errNoActiveTab");
       return;
     }
     if (isSpecialPage(tab.url)) {
-      showError(t(currentLang, "errSpecialPage"));
+      showError("errSpecialPage");
       return;
     }
 
     await ensureContentScript(tab.id);
     const response = await sendCommand(tab.id, "toggle-page");
     if (!response || response.status !== "success") {
-      showError(t(currentLang, "errGeneric", (response && response.message) || "unknown"));
+      showError("errGeneric", (response && response.message) || "unknown");
       return;
     }
 
@@ -154,7 +164,8 @@ async function togglePage() {
     renderState();
   } catch (error) {
     console.error("Failed to toggle page mirror:", error);
-    showError(describeError(error));
+    const err = describeError(error);
+    showError(err.key, ...err.args);
   }
 }
 
@@ -162,18 +173,18 @@ async function toggleVideo() {
   try {
     const tab = await getActiveTab();
     if (!tab || !tab.id) {
-      showError(t(currentLang, "errNoActiveTab"));
+      showError("errNoActiveTab");
       return;
     }
     if (isSpecialPage(tab.url)) {
-      showError(t(currentLang, "errSpecialPage"));
+      showError("errSpecialPage");
       return;
     }
 
     await ensureContentScript(tab.id);
     const response = await sendCommand(tab.id, "toggle-video");
     if (!response || response.status !== "success") {
-      showError(t(currentLang, "errGeneric", (response && response.message) || "unknown"));
+      showError("errGeneric", (response && response.message) || "unknown");
       return;
     }
 
@@ -185,16 +196,17 @@ async function toggleVideo() {
     renderState();
   } catch (error) {
     console.error("Failed to toggle video mirror:", error);
-    showError(describeError(error));
+    const err = describeError(error);
+    showError(err.key, ...err.args);
   }
 }
 
 function describeError(error) {
   const msg = (error && error.message) || String(error);
   if (/could not establish connection|receiving end does not exist/i.test(msg)) {
-    return t(currentLang, "errContentScript");
+    return { key: "errContentScript", args: [] };
   }
-  return t(currentLang, "errGeneric", msg);
+  return { key: "errGeneric", args: [msg] };
 }
 
 function applyUiLanguage(lang) {
@@ -212,9 +224,11 @@ function applyUiLanguage(lang) {
   // Update button labels in the new language.
   renderButtons();
 
-  // If the status area already shows state text, re-render it in the new
-  // language so the whole UI stays consistent.
-  if (statusArea.querySelector(".status-text")) {
+  // If the status area already shows state text or an error, re-render it in
+  // the new language so the whole UI stays consistent.
+  if (lastError) {
+    showError(lastError.key, ...lastError.args);
+  } else if (statusArea.querySelector(".status-text")) {
     renderState();
   }
 
