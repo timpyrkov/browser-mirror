@@ -26,21 +26,39 @@ const LANGUAGES = [
   { code: "zh", name: "Chinese" },
 ];
 
+function clearChildren(el) {
+  while (el.firstChild) {
+    el.removeChild(el.firstChild);
+  }
+}
+
 function populateUiLangSelect() {
-  uiLangSelect.innerHTML = LANGUAGES
-    .map((l) => `<option value="${l.code}">${UI_FLAGS[l.code] || ""} ${l.code.toUpperCase()}</option>`)
-    .join("");
+  clearChildren(uiLangSelect);
+  for (const l of LANGUAGES) {
+    const option = document.createElement("option");
+    option.value = l.code;
+    option.textContent = `${UI_FLAGS[l.code] || ""} ${l.code.toUpperCase()}`.trim();
+    uiLangSelect.appendChild(option);
+  }
 }
 
 function showStatus(message) {
-  statusArea.innerHTML = `<p class="status-text">${message}</p>`;
+  clearChildren(statusArea);
+  const p = document.createElement("p");
+  p.className = "status-text";
+  p.textContent = message;
+  statusArea.appendChild(p);
 }
 
 let lastError = null;
 
 function showError(key, ...args) {
   lastError = { key, args };
-  statusArea.innerHTML = `<p class="error-text">${t(currentLang, key, ...args)}</p>`;
+  clearChildren(statusArea);
+  const p = document.createElement("p");
+  p.className = "error-text";
+  p.textContent = t(currentLang, key, ...args);
+  statusArea.appendChild(p);
 }
 
 function clearError() {
@@ -51,7 +69,7 @@ function renderWelcome() {
   clearError();
   if (welcomeText) {
     welcomeText.textContent = t(currentLang, "welcomeText");
-    statusArea.innerHTML = "";
+    clearChildren(statusArea);
     statusArea.appendChild(welcomeText);
   }
 }
@@ -79,10 +97,15 @@ function renderState() {
     ? currentState.video ? t(currentLang, "statusMirrored") : t(currentLang, "statusNormal")
     : t(currentLang, "videoNotFound");
 
-  statusArea.innerHTML = `
-    <p class="status-text">${t(currentLang, "pageStatus", pageStatus)}</p>
-    <p class="status-text">${t(currentLang, "videoStatus", videoStatus)}</p>
-  `;
+  clearChildren(statusArea);
+  const pageP = document.createElement("p");
+  pageP.className = "status-text";
+  pageP.textContent = t(currentLang, "pageStatus", pageStatus);
+  const videoP = document.createElement("p");
+  videoP.className = "status-text";
+  videoP.textContent = t(currentLang, "videoStatus", videoStatus);
+  statusArea.appendChild(pageP);
+  statusArea.appendChild(videoP);
 }
 
 async function getActiveTab() {
