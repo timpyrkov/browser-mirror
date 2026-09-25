@@ -20,6 +20,9 @@ const VIDEO_CONTAINER_SELECTORS = [
   ".WatchVideo-screen",
 ];
 
+const YOUTUBE_PLAYER_IDS = new Set(["ytd-player", "movie_player", "movie-player"]);
+const YOUTUBE_PLAYER_CLASSES = new Set(["html5-video-player", "html5-main-video"]);
+
 function ensurePageStyleInjected() {
   if (document.getElementById(STYLE_ID)) return;
   const style = document.createElement("style");
@@ -72,29 +75,62 @@ function collectVideos(root = document, seen = new Set()) {
 }
 
 /**
+ * Walks up through shadow hosts to determine whether an element lives inside
+ * a known YouTube player container (ytd-player, #movie_player, etc.).
+ */
+function isInsideYouTubePlayer(el) {
+  let node = el;
+  while (node) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const id = node.id || "";
+      if (YOUTUBE_PLAYER_IDS.has(id.toLowerCase())) return true;
+      const cls = (node.className && typeof node.className === "string" ? node.className : "").toLowerCase();
+      for (const c of YOUTUBE_PLAYER_CLASSES) {
+        if (cls.includes(c)) return true;
+      }
+    }
+    const root = node.getRootNode();
+    node = root && root.host ? root.host : null;
+  }
+  return false;
+}
+
+/**
  * Finds the main visible video element on the page.
- * Prefers actual <video> elements by visible area, then falls back to
- * common video-player container selectors.
+ * Prefers actual <video> elements by visible area, with extra weight for
+ * videos that live inside a known YouTube player so we don't accidentally
+ * target a small preview/ad video. Falls back to common player containers.
  */
 function findMainVideo() {
   const videos = collectVideos();
-  const visibleVideos = videos
-    .map((el) => ({ el, area: visibleArea(el) }))
-    .filter((item) => item.area > 0)
-    .sort((a, b) => b.area - a.area);
-
-  if (visibleVideos.length > 0) {
-    return visibleVideos[0].el;
+  if (videos.length === 0) {
+    return findPlayerContainerFallback();
   }
 
-  // Fallback to known player containers if no real <video> is visible.
+  const scored = videos
+    .filter((el) => visibleArea(el) > 0)
+    .map((el) => {
+      const area = visibleArea(el);
+      // Boost videos inside a YouTube player so they win over previews/ads.
+      const boost = isInsideYouTubePlayer(el) ? 10 : 1;
+      return { el, score: area * boost };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  if (scored.length > 0) {
+    return scored[0].el;
+  }
+
+  return findPlayerContainerFallback();
+}
+
+function findPlayerContainerFallback() {
   for (const selector of VIDEO_CONTAINER_SELECTORS) {
     const el = document.querySelector(selector);
     if (el && visibleArea(el) > 0) {
       return el;
     }
   }
-
   return null;
 }
 
@@ -104,23 +140,42 @@ function togglePageMirror() {
   return document.body.classList.contains(PAGE_MIRROR_CLASS);
 }
 
+function setVideoMirror(video, mirrored) {
+  ensureVideoStyleInRoot(video);
+  if (mirrored) {
+    video.classList.add(VIDEO_MIRROR_CLASS);
+    video.style.setProperty("transform", "scaleX(-1)", "important");
+    video.setAttribute("data-browser-mirror", "true");
+  } else {
+    video.classList.remove(VIDEO_MIRROR_CLASS);
+    video.style.removeProperty("transform");
+    video.removeAttribute("data-browser-mirror");
+  }
+}
+
+function isVideoMirrored(video) {
+  return (
+    video.classList.contains(VIDEO_MIRROR_CLASS) ||
+    video.getAttribute("data-browser-mirror") === "true" ||
+    video.style.transform === "scaleX(-1)"
+  );
+}
+
 function toggleVideoMirror() {
   const video = findMainVideo();
   if (!video) {
     return { mirrored: false, found: false };
   }
-  ensureVideoStyleInRoot(video);
-  video.classList.toggle(VIDEO_MIRROR_CLASS);
+  const nextState = !isVideoMirrored(video);
+  setVideoMirror(video, nextState);
   return {
-    mirrored: video.classList.contains(VIDEO_MIRROR_CLASS),
+    mirrored: nextState,
     found: true,
   };
 }
 
 function getState() {
-  const anyMirroredVideo = collectVideos().some((el) =>
-    el.classList.contains(VIDEO_MIRROR_CLASS)
-  );
+  const anyMirroredVideo = collectVideos().some((el) => isVideoMirrored(el));
   return {
     page: document.body.classList.contains(PAGE_MIRROR_CLASS),
     video: anyMirroredVideo,
