@@ -19,8 +19,5 @@ Thumbs.db
 *.swp
 *.swo
 
-# Test
-test.html
-
 # Private/local guides
 amo_guide.md

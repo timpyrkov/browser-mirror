@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browser Mirror Test Page</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 720px;
+      margin: 2rem auto;
+      padding: 1rem;
+      line-height: 1.6;
+    }
+    .player {
+      width: 100%;
+      max-width: 640px;
+      aspect-ratio: 16 / 9;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      margin: 1rem 0;
+    }
+    .controls {
+      margin: 1rem 0;
+    }
+    .browser-mirror-page {
+      transform: scaleX(-1) !important;
+    }
+    .browser-mirror-video {
+      transform: scaleX(-1) !important;
+    }
+  </style>
+</head>
+<body>
+  <h1>Browser Mirror Test Page</h1>
+  <p>This page helps verify the horizontal-mirror CSS classes used by the extension.</p>
+
+  <div class="controls">
+    <button id="togglePage">Toggle page mirror</button>
+    <button id="toggleVideo">Toggle video mirror</button>
+  </div>
+
+  <div class="player" id="fakeVideo">
+    Fake main video area (replace with a real &lt;video&gt; if preferred)
+  </div>
+
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+
+  <script>
+    document.getElementById("togglePage").addEventListener("click", () => {
+      document.body.classList.toggle("browser-mirror-page");
+    });
+    document.getElementById("toggleVideo").addEventListener("click", () => {
+      document.getElementById("fakeVideo").classList.toggle("browser-mirror-video");
+    });
+  </script>
+</body>
+</html>
