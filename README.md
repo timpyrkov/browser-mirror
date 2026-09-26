@@ -15,8 +15,7 @@ This creates browser-specific packages under `dist/`:
 
 - `dist/firefox/` — load as a temporary extension in `about:debugging`, or package as a `.zip` for addons.mozilla.org.
 - `dist/chrome/` — load as an unpacked extension at `chrome://extensions` with Developer mode enabled, or package as a `.zip` for the Chrome Web Store.
-- `dist/opera/` — load as an unpacked extension at `opera://extensions` with Developer mode enabled. The interface uses Opera's extension sidebar.
-- `dist/yandex/` — load as an unpacked extension at `browser://extensions` with Developer mode enabled. The interface opens as a toolbar popup because Yandex Browser does not document an extension side-panel API.
+- `dist/opera/` — combined Opera/Yandex package. It provides a native sidebar and toolbar popup in Opera, and a toolbar popup in Yandex Browser.
 
 ## Install for development
 
@@ -44,15 +43,15 @@ Run `npm run build` first, then follow the instructions for your browser.
 2. Turn on **Developer mode**.
 3. Click **Load unpacked**.
 4. Select the `dist/opera/` folder.
-5. Open Browser Mirror from Opera's sidebar. After rebuilding, return to `opera://extensions` and reload the extension.
+5. Open Browser Mirror from Opera's sidebar for a persistent panel, or from the toolbar for a temporary popup. Pin the sidebar panel in Opera to keep it open while switching tabs. After rebuilding, return to `opera://extensions` and reload the extension.
 
 ### Yandex Browser
 
 1. Open `browser://extensions`.
 2. Turn on **Developer mode**.
 3. Click **Load unpacked extension**.
-4. Select the `dist/yandex/` folder. If the file chooser requires a file, select `dist/yandex/manifest.json`.
-5. Open Browser Mirror from its toolbar button. After rebuilding, return to `browser://extensions` and reload the extension; if no reload control is available, remove it and load it again.
+4. Select the `dist/opera/` folder. If the file chooser requires a file, select `dist/opera/manifest.json`.
+5. Open Browser Mirror from its toolbar button. Yandex ignores Opera's sidebar declaration and uses the included popup. After rebuilding, return to `browser://extensions` and reload the extension; if no reload control is available, remove it and load it again.
 
 ## Usage
 
@@ -83,5 +82,5 @@ Browser Mirror does not collect, store, or transmit any data. See [`PRIVACY.md`]
 The project structure mirrors the [browser-translations](https://github.com/timpyrkov/browser-translations) extension:
 
 - `src/` — source files shared between browsers.
-- `manifests/` — Manifest V3 configurations for Firefox, Chrome, Opera, and Yandex Browser.
+- `manifests/` — Manifest V3 configurations for Firefox, Chrome, and the combined Opera/Yandex package.
 - `build.js` — copies shared source files and the right manifest into `dist/[browser]/`.

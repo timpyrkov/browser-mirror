@@ -7,8 +7,7 @@
     "build:firefox": "node build.js firefox",
     "build:chrome": "node build.js chrome",
     "build:opera": "node build.js opera",
-    "build:yandex": "node build.js yandex",
-    "build": "npm run build:firefox && npm run build:chrome && npm run build:opera && npm run build:yandex",
+    "build": "npm run build:firefox && npm run build:chrome && npm run build:opera",
     "clean": "rm -rf dist"
   },
   "author": "Tim Pyrkov",

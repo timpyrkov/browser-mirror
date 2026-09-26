@@ -28,7 +28,8 @@
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png"
     },
-    "default_title": "Browser Mirror"
+    "default_title": "Browser Mirror",
+    "default_popup": "popup.html"
   },
   "sidebar_action": {
     "default_title": "Browser Mirror",

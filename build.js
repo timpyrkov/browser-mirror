@@ -41,7 +41,7 @@ function copyDirRecursive(src, dest) {
  * @param {string} browser The target browser.
  */
 function build(browser) {
-  const supportedBrowsers = ['firefox', 'chrome', 'opera', 'yandex'];
+  const supportedBrowsers = ['firefox', 'chrome', 'opera'];
   if (!supportedBrowsers.includes(browser)) {
     console.error(`Invalid browser specified: ${browser}. Use ${supportedBrowsers.join(', ')}.`);
     process.exit(1);
@@ -77,7 +77,7 @@ function build(browser) {
 
 const browser = process.argv[2];
 if (!browser) {
-  console.error('Build target not specified. Usage: node build.js [firefox|chrome|opera|yandex]');
+  console.error('Build target not specified. Usage: node build.js [firefox|chrome|opera]');
   process.exit(1);
 }
 
