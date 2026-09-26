@@ -1,4 +1,7 @@
-# Browser Mirror
+<h1><p align="left">
+  <img src="https://github.com/timpyrkov/browser-mirror/blob/master/src/icons/icon-128.png?raw=true" alt="Browser Mirror logo" height="25" style="vertical-align: middle; margin-right: 10px;">
+  <span style="font-size:2.5em; vertical-align: middle;"><b>Browser Mirror</b></span>
+</p></h1>
 
 Horizontally mirror the current browser tab or its main video area. Works as a sidebar extension in Mozilla Firefox and as a side panel in Google Chrome.
 
