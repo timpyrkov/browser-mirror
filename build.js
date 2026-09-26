@@ -6,6 +6,7 @@ const path = require('path');
 // --- Configuration ---
 const srcDir = path.join(__dirname, 'src');
 const manifestsDir = path.join(__dirname, 'manifests');
+const targetsDir = path.join(__dirname, 'targets');
 const distDir = path.join(__dirname, 'dist');
 
 // --- Helper Functions ---
@@ -37,11 +38,12 @@ function copyDirRecursive(src, dest) {
 
 /**
  * Builds the extension for a specific browser.
- * @param {string} browser The target browser ('firefox' or 'chrome').
+ * @param {string} browser The target browser.
  */
 function build(browser) {
-  if (!['firefox', 'chrome'].includes(browser)) {
-    console.error(`Invalid browser specified: ${browser}. Use 'firefox' or 'chrome'.`);
+  const supportedBrowsers = ['firefox', 'chrome', 'opera', 'yandex'];
+  if (!supportedBrowsers.includes(browser)) {
+    console.error(`Invalid browser specified: ${browser}. Use ${supportedBrowsers.join(', ')}.`);
     process.exit(1);
   }
 
@@ -58,6 +60,11 @@ function build(browser) {
   // 2. Copy source files from src/ to dist/[browser]/
   copyDirRecursive(srcDir, browserDistDir);
 
+  const targetDir = path.join(targetsDir, browser);
+  if (fs.existsSync(targetDir)) {
+    copyDirRecursive(targetDir, browserDistDir);
+  }
+
   // 3. Copy the correct manifest file
   const manifestSrc = path.join(manifestsDir, `${browser}.json`);
   const manifestDest = path.join(browserDistDir, 'manifest.json');
@@ -70,7 +77,7 @@ function build(browser) {
 
 const browser = process.argv[2];
 if (!browser) {
-  console.error('Build target not specified. Usage: node build.js [firefox|chrome]');
+  console.error('Build target not specified. Usage: node build.js [firefox|chrome|opera|yandex]');
   process.exit(1);
 }
 

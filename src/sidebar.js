@@ -121,7 +121,9 @@ async function ensureContentScript(tabId) {
 }
 
 function isSpecialPage(url) {
-  return !url || /^(about|chrome|edge|moz-extension|chrome-extension):/i.test(url);
+  return !url
+    || /^(about|chrome|edge|opera|browser|moz-extension|chrome-extension):/i.test(url)
+    || /^https?:\/\/(chromewebstore\.google\.com|chrome\.google\.com\/webstore|addons\.mozilla\.org|addons\.opera\.com)(\/|$)/i.test(url);
 }
 
 async function sendCommand(tabId, command) {
@@ -143,7 +145,7 @@ async function refreshState() {
     await ensureContentScript(tab.id);
     const response = await sendCommand(tab.id, "get-state");
     if (!response || response.status !== "success") {
-      showError("errGeneric", (response && response.message) || "unknown");
+      showError("errContentScript");
       return;
     }
 
@@ -175,7 +177,7 @@ async function togglePage() {
     await ensureContentScript(tab.id);
     const response = await sendCommand(tab.id, "toggle-page");
     if (!response || response.status !== "success") {
-      showError("errGeneric", (response && response.message) || "unknown");
+      showError("errContentScript");
       return;
     }
 
@@ -207,7 +209,7 @@ async function toggleVideo() {
     await ensureContentScript(tab.id);
     const response = await sendCommand(tab.id, "toggle-video");
     if (!response || response.status !== "success") {
-      showError("errGeneric", (response && response.message) || "unknown");
+      showError("errContentScript");
       return;
     }
 
@@ -226,10 +228,10 @@ async function toggleVideo() {
 
 function describeError(error) {
   const msg = (error && error.message) || String(error);
-  if (/could not establish connection|receiving end does not exist/i.test(msg)) {
-    return { key: "errContentScript", args: [] };
+  if (/extensions? gallery cannot be scripted|chrome web store|addons\.mozilla\.org|addons\.opera\.com|cannot access (?:the )?contents of (?:the )?url/i.test(msg)) {
+    return { key: "errSpecialPage", args: [] };
   }
-  return { key: "errGeneric", args: [msg] };
+  return { key: "errContentScript", args: [] };
 }
 
 function applyUiLanguage(lang) {

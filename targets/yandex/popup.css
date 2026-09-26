@@ -1,0 +1,22 @@
+html,
+body {
+  width: 380px;
+  min-width: 380px;
+  height: 500px;
+  min-height: 500px;
+  overflow: hidden;
+}
+
+.sidebar-page {
+  width: 380px;
+  height: 500px;
+  min-height: 500px;
+}
+
+.toolbar {
+  align-items: flex-start;
+}
+
+.app-title {
+  line-height: 1.2;
+}

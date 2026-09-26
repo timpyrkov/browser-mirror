@@ -14,20 +14,17 @@ brw.runtime.onInstalled.addListener(async (details) => {
   }
 });
 
-// There's no popup — clicking the toolbar icon should open the sidebar directly.
-if (typeof browser !== "undefined" && browser.sidebarAction) {
-  // Firefox: with no default_popup, clicking the action icon fires
-  // action.onClicked instead of doing nothing, so open the sidebar here.
-  browser.action.onClicked.addListener(() => {
-    browser.sidebarAction.open();
+// There's no popup in sidebar/side-panel builds — clicking the toolbar icon
+// should open the browser's persistent extension panel directly.
+const sidebarAction = brw.sidebarAction;
+if (sidebarAction && typeof sidebarAction.open === "function") {
+  brw.action.onClicked.addListener(() => {
+    sidebarAction.open();
   });
 } else {
-  // Chrome: this is the documented way to make the action icon open the
-  // side panel directly, without needing an onClicked listener.
   // Access the API indirectly so the Firefox linter does not flag the
-  // Chrome-only sidePanel call as unsupported.
-  const chromeRuntime = typeof chrome !== "undefined" ? chrome : null;
-  const sidePanel = chromeRuntime && chromeRuntime.sidePanel ? chromeRuntime.sidePanel : null;
+  // Chromium-only sidePanel call as unsupported.
+  const sidePanel = brw.sidePanel;
   if (sidePanel && typeof sidePanel.setPanelBehavior === "function") {
     sidePanel
       .setPanelBehavior({ openPanelOnActionClick: true })
