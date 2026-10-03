@@ -19,8 +19,9 @@ Thumbs.db
 *.swp
 *.swo
 
-# Private/local guides
+# Private/local guides and store listing assets
 /opera_guidelines
+/store_assets
 opera_guide.md
 chrome_guide.md
 amo_guide.md

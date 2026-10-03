@@ -240,6 +240,19 @@ body {
   outline: none;
 }
 
+.btn-secondary {
+  padding: 8px 16px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-weight: 500;
+  box-shadow: none;
+}
+.btn-secondary:hover:not(:disabled), .btn-secondary:focus-visible {
+  border-color: var(--primary-1);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--primary-1) 40%, transparent);
+  outline: none;
+}
+
 .status-area {
   flex: 1;
   min-height: 0;

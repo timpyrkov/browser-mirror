@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Browser Mirror",
-  "version": "1.0",
+  "version": "1.1.0",
   "description": "Horizontally mirror the current tab or its main video area.",
   "author": "Tim Pyrkov",
   "homepage_url": "https://github.com/timpyrkov/browser-mirror",

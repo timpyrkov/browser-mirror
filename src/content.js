@@ -179,6 +179,13 @@ function toggleVideoMirror() {
   };
 }
 
+function resetMirroring() {
+  document.body.classList.remove(PAGE_MIRROR_CLASS);
+  const mirrored = new Set(collectVideos().filter((el) => isVideoMirrored(el)));
+  document.querySelectorAll(`.${VIDEO_MIRROR_CLASS}, [data-browser-mirror]`).forEach((el) => mirrored.add(el));
+  mirrored.forEach((el) => setVideoMirror(el, false));
+}
+
 function getState() {
   const anyMirroredVideo = collectVideos().some((el) => isVideoMirrored(el));
   return {
@@ -207,6 +214,12 @@ if (typeof window.__browserMirrorInstalled === "undefined") {
         video: result.mirrored,
         videoFound: result.found,
       });
+      return;
+    }
+
+    if (message.command === "reset") {
+      resetMirroring();
+      sendResponse({ status: "success", ...getState() });
       return;
     }
 

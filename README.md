@@ -59,6 +59,7 @@ Run `npm run build` first, then follow the instructions for your browser.
 2. Click **Mirror page** to flip the entire active tab horizontally.
 3. Click **Mirror video** to flip only the largest visible video element (e.g. the main player on YouTube, Vimeo, or any page with a `<video>` tag).
 4. Click the same button again to restore the original orientation.
+5. Click **Reset all tabs** to restore the original orientation of every mirrored page and video in all open tabs.
 
 The toolbar also contains:
 

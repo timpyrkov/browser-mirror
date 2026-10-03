@@ -5,6 +5,7 @@ import { t, UI_STRINGS, UI_FLAGS, detectBrowserLanguage } from "./i18n.js";
 
 const pageBtn = document.getElementById("pageBtn");
 const videoBtn = document.getElementById("videoBtn");
+const resetBtn = document.getElementById("resetBtn");
 const statusArea = document.getElementById("statusArea");
 const welcomeText = document.getElementById("welcomeText");
 const appTitle = document.getElementById("appTitle");
@@ -82,6 +83,8 @@ function renderButtons() {
   pageBtn.title = pageLabel;
   videoBtn.textContent = videoLabel;
   videoBtn.title = videoLabel;
+  resetBtn.textContent = t(currentLang, "resetBtn");
+  resetBtn.title = t(currentLang, "resetTitle");
 
   // Keep both buttons gold/orange regardless of mirror state.
   pageBtn.className = "btn btn-green";
@@ -226,6 +229,33 @@ async function toggleVideo() {
   }
 }
 
+// Only tabs where the content script was injected can be mirrored, so tabs
+// that never received it simply reject the message and are skipped.
+async function resetAllTabs() {
+  resetBtn.disabled = true;
+  try {
+    const tabs = await brw.tabs.query({});
+    await Promise.all(
+      tabs
+        .filter((tab) => tab.id && !isSpecialPage(tab.url))
+        .map((tab) => sendCommand(tab.id, "reset").catch(() => {}))
+    );
+    await refreshState();
+    if (!lastError) {
+      const p = document.createElement("p");
+      p.className = "status-text";
+      p.textContent = t(currentLang, "resetDone");
+      statusArea.appendChild(p);
+    }
+  } catch (error) {
+    console.error("Failed to reset tabs:", error);
+    const err = describeError(error);
+    showError(err.key, ...err.args);
+  } finally {
+    resetBtn.disabled = false;
+  }
+}
+
 function describeError(error) {
   const msg = (error && error.message) || String(error);
   if (/extensions? gallery cannot be scripted|chrome web store|addons\.mozilla\.org|addons\.opera\.com|cannot access (?:the )?contents of (?:the )?url/i.test(msg)) {
@@ -283,6 +313,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadSettings();
   pageBtn.addEventListener("click", togglePage);
   videoBtn.addEventListener("click", toggleVideo);
+  resetBtn.addEventListener("click", resetAllTabs);
 
   uiLangSelect.addEventListener("change", () => {
     const lang = uiLangSelect.value;
