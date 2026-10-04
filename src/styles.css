@@ -44,6 +44,9 @@
   --input-focus: var(--primary-1);
   --success: var(--color-success);
   --error: var(--color-error);
+  /* One mid grey for both themes: coloured buttons keep the same fill in light
+     and dark, and #7a7a7a reads as inactive on gold, olive and red alike. */
+  --btn-disabled-text: #7a7a7a;
 }
 
 :root[data-theme="light"] {
@@ -241,9 +244,8 @@ body {
   text-decoration: none;
 }
 .btn:disabled {
-  opacity: 0.5;
   cursor: not-allowed;
-  filter: grayscale(0.4);
+  color: var(--btn-disabled-text);
   box-shadow: none;
 }
 .btn:active:not(:disabled) {
