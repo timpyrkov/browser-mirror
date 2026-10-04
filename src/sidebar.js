@@ -83,11 +83,11 @@ function renderButtons() {
   pageBtn.title = pageLabel;
   videoBtn.textContent = videoLabel;
   videoBtn.title = videoLabel;
+  resetBtn.textContent = t(currentLang, "resetCaption");
   resetBtn.title = t(currentLang, "resetBtn");
-  resetBtn.setAttribute("aria-label", t(currentLang, "resetTitle"));
 
-  // Keep both buttons gold/orange regardless of mirror state.
-  pageBtn.className = "btn btn-green";
+  // Fixed colours regardless of mirror state: page = yellow, video = green.
+  pageBtn.className = "btn btn-yellow";
   videoBtn.className = "btn btn-green";
 }
 

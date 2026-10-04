@@ -24,7 +24,7 @@ export default {
   welcomeText: "Clicca uno dei pulsanti sopra per specchiare la scheda corrente o l'area video principale.",
   videoHint: "Avvia la riproduzione del video, poi specchia.",
   resetBtn: "Ripristina tutte le schede",
-  resetTitle: "Riporta tutte le schede all’orientamento originale",
+  resetCaption: "Ripristina tutto",
   resetDone: "Tutte le schede sono tornate all’orientamento originale.",
   errNoActiveTab: "Nessuna scheda attiva trovata.",
   errSpecialPage: "Impossibile specchiare le pagine speciali del browser.",

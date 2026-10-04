@@ -24,7 +24,7 @@ export default {
   welcomeText: "上のボタンをクリックして、現在のタブまたはそのメイン動画エリアをミラーリングします。",
   videoHint: "動画の再生を開始してからミラーリングしてください。",
   resetBtn: "すべてのタブをリセット",
-  resetTitle: "すべてのタブを元の向きに戻します",
+  resetCaption: "すべてリセット",
   resetDone: "すべてのタブが元の向きに戻りました。",
 
   errNoActiveTab: "アクティブなタブが見つかりません。",

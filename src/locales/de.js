@@ -24,7 +24,7 @@ export default {
   welcomeText: "Klicke oben auf einen Button, um den aktuellen Tab oder seinen Hauptvideobereich zu spiegeln.",
   videoHint: "Starte die Videowiedergabe, dann spiegeln.",
   resetBtn: "Alle Tabs zurücksetzen",
-  resetTitle: "Alle Tabs in die ursprüngliche Ausrichtung zurücksetzen",
+  resetCaption: "Alles zurücksetzen",
   resetDone: "Alle Tabs wurden in die ursprüngliche Ausrichtung zurückgesetzt.",
   errNoActiveTab: "Kein aktiver Tab gefunden.",
   errSpecialPage: "Spezielle Browserseiten können nicht gespiegelt werden.",

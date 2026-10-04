@@ -24,7 +24,7 @@ export default {
   welcomeText: "Click a button above to mirror the current tab or its main video area.",
   videoHint: "Start playing the video, then mirror.",
   resetBtn: "Reset all tabs",
-  resetTitle: "Restore every tab to its original orientation",
+  resetCaption: "Reset all",
   resetDone: "All tabs restored to their original orientation.",
   errNoActiveTab: "No active tab found.",
   errSpecialPage: "Cannot mirror special browser pages.",

@@ -24,7 +24,7 @@ export default {
   welcomeText: "点击上方按钮以镜像当前标签页或其主视频区域。",
   videoHint: "开始播放视频，然后进行镜像。",
   resetBtn: "重置所有标签页",
-  resetTitle: "将所有标签页恢复为原始方向",
+  resetCaption: "全部重置",
   resetDone: "所有标签页已恢复为原始方向。",
 
   errNoActiveTab: "未找到活动标签页。",

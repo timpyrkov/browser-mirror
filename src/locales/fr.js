@@ -24,7 +24,7 @@ export default {
   welcomeText: "Cliquez sur un bouton ci-dessus pour mettre en miroir l'onglet actuel ou sa zone vidéo principale.",
   videoHint: "Lancez la lecture de la vidéo, puis mettez-la en miroir.",
   resetBtn: "Réinitialiser tous les onglets",
-  resetTitle: "Rétablir l’orientation d’origine de tous les onglets",
+  resetCaption: "Tout réinitialiser",
   resetDone: "Tous les onglets ont retrouvé leur orientation d’origine.",
   errNoActiveTab: "Aucun onglet actif trouvé.",
   errSpecialPage: "Impossible de mettre en miroir les pages spéciales du navigateur.",

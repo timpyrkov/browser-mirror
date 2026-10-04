@@ -24,7 +24,7 @@ export default {
   welcomeText: "위의 버튼을 클릭하여 현재 탭이나 주요 동영상 영역을 미러링하세요.",
   videoHint: "동영상 재생을 시작한 후 미러링하세요.",
   resetBtn: "모든 탭 초기화",
-  resetTitle: "모든 탭을 원래 방향으로 되돌립니다",
+  resetCaption: "모두 초기화",
   resetDone: "모든 탭이 원래 방향으로 복원되었습니다.",
   errNoActiveTab: "활성 탭을 찾을 수 없습니다.",
   errSpecialPage: "브라우저의 특수 페이지는 미러링할 수 없습니다.",
