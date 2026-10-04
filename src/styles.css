@@ -178,6 +178,38 @@ body {
   color: #f2f2f1;
 }
 
+.reset-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--neutral-4);
+  background: var(--neutral-3);
+  color: var(--neutral-7);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.reset-btn:hover:not(:disabled), .reset-btn:focus-visible {
+  color: var(--foreground);
+  border-color: var(--neutral-5);
+  background: var(--neutral-4);
+  outline: none;
+}
+.reset-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+.reset-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .controls {
   display: flex;
   flex-direction: column;
@@ -237,19 +269,6 @@ body {
 .btn-yellow:hover:not(:disabled), .btn-yellow:focus-visible {
   filter: brightness(1.08);
   box-shadow: 0 0 12px color-mix(in srgb, var(--accent-2) 55%, transparent);
-  outline: none;
-}
-
-.btn-secondary {
-  padding: 8px 16px;
-  background: var(--surface);
-  color: var(--foreground);
-  font-weight: 500;
-  box-shadow: none;
-}
-.btn-secondary:hover:not(:disabled), .btn-secondary:focus-visible {
-  border-color: var(--primary-1);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--primary-1) 40%, transparent);
   outline: none;
 }
 
