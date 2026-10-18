@@ -275,6 +275,7 @@ function applyUiLanguage(lang) {
   }
 
   uiLangSelect.title = t(currentLang, "uiLangLabel");
+  document.getElementById("themeToggle").title = t(currentLang, "themeToggleLabel");
 
   // Update button labels in the new language.
   renderButtons();
