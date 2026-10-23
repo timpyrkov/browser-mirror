@@ -10,7 +10,11 @@
 
   const PAGE_MIRROR_CLASS = "browser-mirror-page";
   const VIDEO_MIRROR_CLASS = "browser-mirror-video";
-  const STYLE_ID = "browser-mirror-style";
+  const PAGE_STYLE_ID = "browser-mirror-page-style";
+  const VIDEO_STYLE_ID = "browser-mirror-video-style";
+  const MIRROR_ATTR = "data-browser-mirror";
+  const PREV_TRANSFORM_ATTR = "data-browser-mirror-prev-transform";
+  const PREV_PRIORITY_ATTR = "data-browser-mirror-prev-priority";
 
   const VIDEO_CONTAINER_SELECTORS = [
     // Generic players
@@ -30,10 +34,83 @@
   const YOUTUBE_PLAYER_IDS = new Set(["ytd-player", "movie_player", "movie-player"]);
   const YOUTUBE_PLAYER_CLASSES = new Set(["html5-video-player", "html5-main-video"]);
 
+  /**
+   * LinkedIn post URN from /feed/update/urn:li:{kind}:{id}/ or
+   * /posts/[{vanity}_{slug}-]{kind}-{id}-{xxxx}/ (same patterns as the
+   * browser-videos LinkedIn gallery), else null.
+   */
+  function linkedInPostUrn(pathname) {
+    let path;
+    try {
+      path = decodeURIComponent(pathname);
+    } catch (error) {
+      return null;
+    }
+    const match = /^\/feed\/update\/urn:li:(activity|ugcPost|share):(\d{10,25})\/?$/.exec(path)
+      || /^\/posts\/(?:[^/]*[_-])?(activity|ugcPost|share)-(\d{10,25})-[A-Za-z0-9_-]{2,8}\/?$/.exec(path);
+    return match ? `urn:li:${match[1]}:${match[2]}` : null;
+  }
+
+  /**
+   * Platforms whose main video sits in a known container, using the URL and
+   * DOM patterns tested in the sister extensions browser-videos and
+   * browser-images. `scopes` lists containers to try in order; the first one
+   * holding a visible candidate wins, otherwise detection falls back to the
+   * whole page. `media` is what counts as a candidate inside a scope.
+   */
+  const SITE_RULES = [
+    {
+      // Shorts keep the neighbouring Shorts rendered above and below.
+      host: /(^|\.)youtube\.com$/i,
+      path: /^\/shorts\/[A-Za-z0-9_-]{11}\/?$/,
+      scopes: () => ["ytd-reel-video-renderer[is-active]", "#shorts-player"],
+    },
+    {
+      // Keeps hover previews and the miniplayer from winning on watch pages.
+      host: /(^|\.)youtube\.com$/i,
+      path: /^\/watch\/?$/,
+      scopes: () => ["#movie_player", "ytd-player"],
+    },
+    {
+      // A post or reel opened from a profile or the feed shows in a modal
+      // dialog, with the feed's own videos still playing behind it.
+      host: /(^|\.)instagram\.com$/i,
+      path: /^\/(?:[A-Za-z0-9._]{1,30}\/)?(?:p|reels?|tv)\/[A-Za-z0-9_-]{5,60}\/?$/,
+      scopes: () => ['[role="dialog"]'],
+    },
+    {
+      // The post's own card, by its exact URN: "More posts" cards below it
+      // carry other URNs (data-urn/data-id logged in, data-activity-urn and
+      // data-attributed-urn on the public page).
+      host: /(^|\.)linkedin\.com$/i,
+      scopes: (url) => {
+        const urn = linkedInPostUrn(url.pathname);
+        if (!urn) return [];
+        return [`[data-urn="${urn}"], [data-id="${urn}"], [data-activity-urn="${urn}"], [data-attributed-urn="${urn}"]`];
+      },
+    },
+    {
+      // The pin closeup, not the "More ideas" grid of autoplaying pins below.
+      host: /(^|\.)pinterest\./i,
+      path: /\/pin\/\d+/,
+      scopes: () => ['[data-test-id="pin-closeup"]', '[data-test-id="closeup"]'],
+    },
+    {
+      // Each artwork item renders in <project-asset>. Clips can also play in
+      // an embedded player <iframe> (ArtStation's own or YouTube/Vimeo),
+      // which the content script cannot enter, so the iframe itself is
+      // mirrored.
+      host: /(^|\.)artstation\.com$/i,
+      path: /^\/artwork\/[A-Za-z0-9]+\/?$/,
+      scopes: () => ["project-asset"],
+      media: "video, iframe",
+    },
+  ];
+
   function ensurePageStyleInjected() {
-    if (document.getElementById(STYLE_ID)) return;
+    if (document.getElementById(PAGE_STYLE_ID)) return;
     const style = document.createElement("style");
-    style.id = STYLE_ID;
+    style.id = PAGE_STYLE_ID;
     style.textContent = `.${PAGE_MIRROR_CLASS} { transform: scaleX(-1) !important; }`;
     document.head.appendChild(style);
   }
@@ -43,28 +120,30 @@
    * that contains the target element, so the class rule actually applies.
    */
   function ensureVideoStyleInRoot(el) {
-    let root = el.getRootNode();
+    const root = el.getRootNode();
+    // Look the style up on the root itself: Document and ShadowRoot both
+    // support getElementById, whereas <head> (an Element) does not.
+    if (typeof root.getElementById !== "function" || root.getElementById(VIDEO_STYLE_ID)) return;
+    const style = document.createElement("style");
+    style.id = VIDEO_STYLE_ID;
+    style.textContent = `.${VIDEO_MIRROR_CLASS} { transform: scaleX(-1) !important; }`;
     // A Document can only contain one element child (<html>), so append styles
     // to <head> instead. ShadowRoots can accept the style directly.
-    if (root === document) {
-      root = document.head;
-    }
-    if (root.getElementById && root.getElementById(STYLE_ID)) return;
-    const style = document.createElement("style");
-    style.id = STYLE_ID;
-    style.textContent = `.${VIDEO_MIRROR_CLASS} { transform: scaleX(-1) !important; }`;
-    root.appendChild(style);
+    (root === document ? document.head || document.documentElement : root).appendChild(style);
   }
 
   /**
-   * Returns the visible bounding rectangle area of an element.
+   * Returns the area of an element that lies inside the viewport, or 0 when
+   * it is off screen (on any side) or hidden.
    */
   function visibleArea(el) {
     const rect = el.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return 0;
-    const w = Math.min(rect.width, window.innerWidth - Math.max(0, rect.left));
-    const h = Math.min(rect.height, window.innerHeight - Math.max(0, rect.top));
-    return Math.max(0, w) * Math.max(0, h);
+    const w = Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0);
+    const h = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+    if (w <= 0 || h <= 0) return 0;
+    if (typeof el.checkVisibility === "function"
+      && !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) return 0;
+    return w * h;
   }
 
   /**
@@ -108,39 +187,55 @@
   }
 
   /**
-   * Finds the main visible video element on the page.
-   * Prefers actual <video> elements by visible area, with extra weight for
-   * videos that live inside a known YouTube player so we don't accidentally
-   * target a small preview/ad video. Falls back to common player containers.
+   * Picks the best visible candidate by visible area, with extra weight for
+   * videos inside a known YouTube player (so a small preview/ad video does
+   * not win) and for a playing video (so a paused neighbour does not win).
+   */
+  function pickLargestVisible(candidates) {
+    let best = null;
+    let bestScore = 0;
+    for (const el of candidates) {
+      const area = visibleArea(el);
+      if (area <= 0) continue;
+      const playing = el.tagName === "VIDEO" && !el.paused && !el.ended;
+      const score = area * (isInsideYouTubePlayer(el) ? 10 : 1) * (playing ? 2 : 1);
+      if (score > bestScore) {
+        best = el;
+        bestScore = score;
+      }
+    }
+    return best;
+  }
+
+  /** The main video inside the current platform's known containers, else null. */
+  function findSiteVideo() {
+    const url = new URL(location.href);
+    const rule = SITE_RULES.find((r) => r.host.test(url.hostname) && (!r.path || r.path.test(url.pathname)));
+    if (!rule) return null;
+    for (const selector of rule.scopes(url)) {
+      for (const scope of document.querySelectorAll(selector)) {
+        const candidates = collectVideos(scope);
+        if (rule.media) candidates.push(...scope.querySelectorAll(rule.media));
+        const video = pickLargestVisible(candidates);
+        if (video) return video;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Finds the main visible video element on the page: first inside the
+   * platform's known containers (see SITE_RULES), then the best visible
+   * <video> anywhere, then common player containers.
    */
   function findMainVideo() {
-    const videos = collectVideos();
-    if (videos.length === 0) {
-      return findPlayerContainerFallback();
-    }
-
-    const scored = videos
-      .filter((el) => visibleArea(el) > 0)
-      .map((el) => {
-        const area = visibleArea(el);
-        // Boost videos inside a YouTube player so they win over previews/ads.
-        const boost = isInsideYouTubePlayer(el) ? 10 : 1;
-        return { el, score: area * boost };
-      })
-      .sort((a, b) => b.score - a.score);
-
-    if (scored.length > 0) {
-      return scored[0].el;
-    }
-
-    return findPlayerContainerFallback();
+    return findSiteVideo() || pickLargestVisible(collectVideos()) || findPlayerContainerFallback();
   }
 
   function findPlayerContainerFallback() {
     for (const selector of VIDEO_CONTAINER_SELECTORS) {
-      const el = document.querySelector(selector);
-      if (el && visibleArea(el) > 0) {
-        return el;
+      for (const el of document.querySelectorAll(selector)) {
+        if (visibleArea(el) > 0) return el;
       }
     }
     return null;
@@ -153,51 +248,76 @@
   }
 
   function setVideoMirror(video, mirrored) {
-    ensureVideoStyleInRoot(video);
     if (mirrored) {
+      if (isVideoMirrored(video)) return;
+      ensureVideoStyleInRoot(video);
+      // Remember the site's own inline transform so it can be restored later.
+      video.setAttribute(PREV_TRANSFORM_ATTR, video.style.getPropertyValue("transform"));
+      video.setAttribute(PREV_PRIORITY_ATTR, video.style.getPropertyPriority("transform"));
       video.classList.add(VIDEO_MIRROR_CLASS);
       video.style.setProperty("transform", "scaleX(-1)", "important");
-      video.setAttribute("data-browser-mirror", "true");
+      video.setAttribute(MIRROR_ATTR, "true");
     } else {
+      const prevTransform = video.getAttribute(PREV_TRANSFORM_ATTR);
       video.classList.remove(VIDEO_MIRROR_CLASS);
-      video.style.removeProperty("transform");
-      video.removeAttribute("data-browser-mirror");
+      if (prevTransform) {
+        video.style.setProperty("transform", prevTransform, video.getAttribute(PREV_PRIORITY_ATTR) || "");
+      } else {
+        video.style.removeProperty("transform");
+      }
+      video.removeAttribute(MIRROR_ATTR);
+      video.removeAttribute(PREV_TRANSFORM_ATTR);
+      video.removeAttribute(PREV_PRIORITY_ATTR);
     }
   }
 
+  // Only our own markers count: a site may legitimately set an inline
+  // scaleX(-1) transform, and that must not be treated as our mirroring.
   function isVideoMirrored(video) {
-    return (
-      video.classList.contains(VIDEO_MIRROR_CLASS) ||
-      video.getAttribute("data-browser-mirror") === "true" ||
-      video.style.transform === "scaleX(-1)"
-    );
+    return video.classList.contains(VIDEO_MIRROR_CLASS) || video.getAttribute(MIRROR_ATTR) === "true";
   }
 
+  /**
+   * Returns every element this script has mirrored, including those inside
+   * open shadow roots.
+   */
+  function collectMirroredVideos() {
+    const mirrored = new Set(collectVideos().filter((el) => isVideoMirrored(el)));
+    document.querySelectorAll(`.${VIDEO_MIRROR_CLASS}, [${MIRROR_ATTR}]`).forEach((el) => mirrored.add(el));
+    return mirrored;
+  }
+
+  /**
+   * The panel shows "on" whenever any video is mirrored, so clicking it then
+   * restores every mirrored video, even if the main video has since changed
+   * (e.g. an ad or a larger player). Otherwise it mirrors the main video.
+   */
   function toggleVideoMirror() {
+    const mirrored = collectMirroredVideos();
+    if (mirrored.size > 0) {
+      mirrored.forEach((el) => setVideoMirror(el, false));
+      return { mirrored: false, found: !!findMainVideo() };
+    }
     const video = findMainVideo();
     if (!video) {
       return { mirrored: false, found: false };
     }
-    const nextState = !isVideoMirrored(video);
-    setVideoMirror(video, nextState);
+    setVideoMirror(video, true);
     return {
-      mirrored: nextState,
+      mirrored: true,
       found: true,
     };
   }
 
   function resetMirroring() {
     document.body.classList.remove(PAGE_MIRROR_CLASS);
-    const mirrored = new Set(collectVideos().filter((el) => isVideoMirrored(el)));
-    document.querySelectorAll(`.${VIDEO_MIRROR_CLASS}, [data-browser-mirror]`).forEach((el) => mirrored.add(el));
-    mirrored.forEach((el) => setVideoMirror(el, false));
+    collectMirroredVideos().forEach((el) => setVideoMirror(el, false));
   }
 
   function getState() {
-    const anyMirroredVideo = collectVideos().some((el) => isVideoMirrored(el));
     return {
       page: document.body.classList.contains(PAGE_MIRROR_CLASS),
-      video: anyMirroredVideo,
+      video: collectMirroredVideos().size > 0,
       videoFound: !!findMainVideo(),
     };
   }
